@@ -1,0 +1,14 @@
+# Python
+.venv/
+__pycache__/
+.pytest_cache/
+
+# JavaScript (Plan 3)
+node_modules/
+
+# Secrets — never commit these
+.env
+backend/.garmin_tokens/
+
+# Local database files
+*.db
