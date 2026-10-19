@@ -86,9 +86,9 @@ personal-trainer/
 **Interfaces:**
 - Produces: `app.main.app` (the FastAPI instance). `GET /health` → `{"status": "ok"}`.
 
-- [ ] **Step 1: `git init` at the project root.** Create `.gitignore` with the entries from Global Constraints plus `__pycache__/`, `.pytest_cache/`.
-- [ ] **Step 2: Create `CLAUDE.md`.** Describe the project in one paragraph and link `running-coach-design.md` and the `plan-*.md` files in the project root. Learning-mode rules: small steps, plain-English walkthrough of every new file, one "try changing X" exercise per task, wait for Amit's review before continuing. Amit is new to coding, so explain terms the first time they appear.
-- [ ] **Step 3: Create the venv and install.** Run `py -3.12 -m venv backend/.venv`. List `fastapi uvicorn[standard] sqlmodel garminconnect fitdecode python-multipart pytest httpx` in `backend/requirements.txt`. Install them, then pin exact versions using the output of `pip freeze` (only those packages).
+- [x] **Step 1: `git init` at the project root.** Create `.gitignore` with the entries from Global Constraints plus `__pycache__/`, `.pytest_cache/`.
+- [x] **Step 2: Create `CLAUDE.md`.** Describe the project in one paragraph and link `running-coach-design.md` and the `plan-*.md` files in the project root. Learning-mode rules: small steps, plain-English walkthrough of every new file, one "try changing X" exercise per task, wait for Amit's review before continuing. Amit is new to coding, so explain terms the first time they appear.
+- [x] **Step 3: Create the venv and install.** Run `py -3.12 -m venv backend/.venv`. List `fastapi uvicorn[standard] sqlmodel garminconnect fitdecode python-multipart pytest httpx` in `backend/requirements.txt`. Install them, then pin exact versions using the output of `pip freeze` (only those packages).
 - [ ] **Step 4: Write the failing test** `backend/tests/test_health.py`:
 
 ```python
