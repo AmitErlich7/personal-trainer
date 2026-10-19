@@ -61,21 +61,21 @@ A commit is **logical** when all of these are true:
 
 ## 3. Pull requests: every push is reviewed
 
-- When a task is finished, push the branch and open a PR right away:
+- When a task is finished, Claude pushes the branch:
 
   ```
   git push -u origin feat/plan1-task2-database
-  gh pr create --fill
   ```
 
+  Claude then gives Amit the PR title and a filled-in description in the chat.
+- Amit opens the PR on the GitHub website. Click the yellow **"Compare & pull request"** banner, or the link that `git push` prints. The description box is pre-filled with the template (`.github/pull_request_template.md`). Paste Claude's text over it and click **Create pull request**.
 - **One PR per plan task.** That keeps every review small enough to actually read.
-- The PR description follows the template (`.github/pull_request_template.md`): what changed, why, how to test it, and what to learn from it.
-- If Amit asks for changes, Claude adds **new commits** to the same branch (no rewriting history) and pushes again. The PR updates by itself.
+- If Amit asks for changes, he copies his comments into the chat. Claude adds **new commits** to the same branch (no rewriting history) and pushes again. The PR updates by itself.
 
 ## 4. Reviewing a PR (Amit)
 
 1. Open the PR on GitHub and go to the **Files changed** tab.
-2. Read every changed line. Click a line to leave a comment or question, and Claude will answer it.
+2. Read every changed line. Click a line to leave a comment or question, then paste it into the chat with Claude.
 3. Check that the tests passed (the "How to test" section, or run them yourself).
 4. When you understand all of it and you're happy, merge using **"Create a merge commit"**. This keeps each logical commit in `main`'s history.
 5. GitHub deletes the branch after merging. Locally, run:
@@ -88,7 +88,7 @@ A commit is **logical** when all of these are true:
 ## What enforces these rules
 
 - **Locally:** a git hook (`.githooks/pre-push`) refuses any push to `main` from this computer. It's turned on with `git config core.hooksPath .githooks` (run once after cloning).
-- **On GitHub:** the repo is set to merge commits only and deletes branches after merging.
+- **On GitHub (set once by Amit, Settings → General → Pull Requests):** only "Allow merge commits" is ticked, and "Automatically delete head branches" is on.
 - **Honest limits:**
   - GitHub's "protected branch" rules, which would block merging without an approval, are not available for **private** repos on a free account.
   - GitHub also doesn't let you formally "Approve" a PR that comes from your own account, and Claude pushes as you.

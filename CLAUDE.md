@@ -19,7 +19,7 @@ This is Amit's first real coding project. He must understand every line.
 
 - Never commit or push to `main`. Work on a branch per plan task, e.g. `feat/plan1-task2-database`.
 - Every commit is one logical change, with its tests, and `pytest` passes at that commit. Message: `<type>: <imperative summary>` (feat, fix, test, refactor, docs, chore).
-- Every push gets a PR (`gh pr create`) using `.github/pull_request_template.md`, one PR per plan task.
+- Every push gets a PR, one PR per plan task. No GitHub CLI: after `git push`, give Amit the PR title and a filled-in `.github/pull_request_template.md` description, and he opens the PR on the website.
 - Review fixes go in as new commits on the same branch. No force-push, no rewriting history.
 - Never merge PRs. Amit reviews and merges on GitHub.
 
