@@ -6,6 +6,14 @@ def test_create_user_returns_201_and_id(client):
     assert body["max_hr"] is None
 
 
+def test_signup_ignores_max_hr(client):
+    response = client.post(
+        "/users", json={"name": "Amit", "email": "a@x.com", "max_hr": 190}
+    )
+    assert response.status_code == 201
+    assert response.json()["max_hr"] is None
+
+
 def test_get_user_404(client):
     response = client.get("/users/999")
     assert response.status_code == 404
