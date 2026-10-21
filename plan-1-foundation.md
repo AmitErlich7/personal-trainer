@@ -123,12 +123,12 @@ def test_health_returns_ok():
   - `POST /users` (body `name`, `email`, optional `max_hr`) → 201 + user JSON. `GET /users/{user_id}` → user or 404 `"User not found"`.
   - `tests/conftest.py`: fixture `session` (in-memory SQLite, `StaticPool`) and fixture `client` (TestClient with `get_session` overridden to use it).
 
-- [ ] **Step 1: Write the failing tests** in `test_users.py`:
+- [x] **Step 1: Write the failing tests** in `test_users.py`:
   - `test_create_user_returns_201_and_id`: posting `{"name": "Amit", "email": "a@x.com"}` returns 201, `id` is an int, and `max_hr` is `None`.
   - `test_get_user_404`: `GET /users/999` returns 404 with detail `"User not found"`.
   - `test_duplicate_email_rejected`: a second POST with the same email returns 409.
-- [ ] **Step 2: Run** `pytest tests/test_users.py -v`. Expected: FAIL (import errors).
-- [ ] **Step 3: Implement** `db.py`, `models.py`, `routes/users.py`. Wire them into `main.py` using a FastAPI lifespan that calls `init_db()`.
+- [x] **Step 2: Run** `pytest tests/test_users.py -v`. Expected: FAIL (import errors).
+- [x] **Step 3: Implement** `db.py`, `models.py`, `routes/users.py`. Wire them into `main.py` using a FastAPI lifespan that calls `init_db()`.
 - [x] **Step 4: Run** `pytest -v`. Expected: all PASS.
 - [x] **Step 5: Commit** `feat: database with User and Activity models`.
 - [x] **Step 6: Walkthrough.** Explain tables and rows, primary/foreign keys, what a "dependency" is in FastAPI, and why tests use an in-memory database. Exercise: open `coach.db` with the free "DB Browser for SQLite" after creating a user through `/docs`. Wait for review.
