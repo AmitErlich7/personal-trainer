@@ -89,7 +89,7 @@ personal-trainer/
 - [x] **Step 1: `git init` at the project root.** Create `.gitignore` with the entries from Global Constraints plus `__pycache__/`, `.pytest_cache/`.
 - [x] **Step 2: Create `CLAUDE.md`.** Describe the project in one paragraph and link `running-coach-design.md` and the `plan-*.md` files in the project root. Learning-mode rules: small steps, plain-English walkthrough of every new file, one "try changing X" exercise per task, wait for Amit's review before continuing. Amit is new to coding, so explain terms the first time they appear.
 - [x] **Step 3: Create the venv and install.** Run `py -3.12 -m venv backend/.venv`. List `fastapi uvicorn[standard] sqlmodel garminconnect fitdecode python-multipart pytest httpx` in `backend/requirements.txt`. Install them, then pin exact versions using the output of `pip freeze` (only those packages).
-- [ ] **Step 4: Write the failing test** `backend/tests/test_health.py`:
+- [x] **Step 4: Write the failing test** `backend/tests/test_health.py`:
 
 ```python
 from fastapi.testclient import TestClient
@@ -101,10 +101,10 @@ def test_health_returns_ok():
     assert response.json() == {"status": "ok"}
 ```
 
-- [ ] **Step 5: Run** `cd backend; .venv\Scripts\python -m pytest tests/test_health.py -v`. Expected: FAIL (`No module named 'app.main'`).
-- [ ] **Step 6: Implement `app/main.py`** with `app = FastAPI(title="Running Coach")` and the `/health` route.
-- [ ] **Step 7: Run the test.** Expected: PASS. Also run `.venv\Scripts\uvicorn app.main:app --reload` and open `http://127.0.0.1:8000/docs` to show Amit the auto-generated API page.
-- [ ] **Step 8: Commit** everything, including the design and plan files: `git commit -m "chore: project setup, design doc, health check"`.
+- [x] **Step 5: Run** `cd backend; .venv\Scripts\python -m pytest tests/test_health.py -v`. Expected: FAIL (`No module named 'app.main'`).
+- [x] **Step 6: Implement `app/main.py`** with `app = FastAPI(title="Running Coach")` and the `/health` route.
+- [x] **Step 7: Run the test.** Expected: PASS. Also run `.venv\Scripts\uvicorn app.main:app --reload` and open `http://127.0.0.1:8000/docs` to show Amit the auto-generated API page.
+- [x] **Step 8: Commit** everything, including the design and plan files: `git commit -m "chore: project setup, design doc, health check"`.
 - [ ] **Step 9: Walkthrough.** Explain: what a virtual env is, what FastAPI does, and how the test works. Exercise: add `"app": "running-coach"` to the health response, watch the test fail, then fix the test. Wait for review.
 
 ---
@@ -129,9 +129,9 @@ def test_health_returns_ok():
   - `test_duplicate_email_rejected`: a second POST with the same email returns 409.
 - [ ] **Step 2: Run** `pytest tests/test_users.py -v`. Expected: FAIL (import errors).
 - [ ] **Step 3: Implement** `db.py`, `models.py`, `routes/users.py`. Wire them into `main.py` using a FastAPI lifespan that calls `init_db()`.
-- [ ] **Step 4: Run** `pytest -v`. Expected: all PASS.
-- [ ] **Step 5: Commit** `feat: database with User and Activity models`.
-- [ ] **Step 6: Walkthrough.** Explain tables and rows, primary/foreign keys, what a "dependency" is in FastAPI, and why tests use an in-memory database. Exercise: open `coach.db` with the free "DB Browser for SQLite" after creating a user through `/docs`. Wait for review.
+- [x] **Step 4: Run** `pytest -v`. Expected: all PASS.
+- [x] **Step 5: Commit** `feat: database with User and Activity models`.
+- [x] **Step 6: Walkthrough.** Explain tables and rows, primary/foreign keys, what a "dependency" is in FastAPI, and why tests use an in-memory database. Exercise: open `coach.db` with the free "DB Browser for SQLite" after creating a user through `/docs`. Wait for review.
 
 ---
 
@@ -152,9 +152,9 @@ def test_health_returns_ok():
   - `week_range(date(2026, 10, 12)) == (datetime(2026, 10, 12), datetime(2026, 10, 19))`.
 - [ ] **Step 2: Run them.** Expected: FAIL.
 - [ ] **Step 3: Implement** both modules. `to_sport` uses a dict of sets.
-- [ ] **Step 4: Run.** Expected: PASS.
-- [ ] **Step 5: Commit** `feat: sport mapping and week helpers`.
-- [ ] **Step 6: Walkthrough.** Explain dicts and sets, `date` vs `datetime`, and half-open ranges. Exercise: add `"hiking"` → `"other"` explicitly and write the test first. Wait for review.
+- [x] **Step 4: Run.** Expected: PASS.
+- [x] **Step 5: Commit** `feat: sport mapping and week helpers`.
+- [x] **Step 6: Walkthrough.** Explain dicts and sets, `date` vs `datetime`, and half-open ranges. Exercise: add `"hiking"` → `"other"` explicitly and write the test first. Wait for review.
 
 ---
 
@@ -178,9 +178,9 @@ def test_health_returns_ok():
   - `test_different_sport_same_time_both_saved`: a run and a bike at the same time both get saved (brick workouts).
 - [ ] **Step 2: Run.** Expected: FAIL.
 - [ ] **Step 3: Implement** `save_activities`. Query the user's activities of that sport within ±60 s of the start time, then check duration. Commit the session once at the end.
-- [ ] **Step 4: Run.** Expected: PASS.
-- [ ] **Step 5: Commit** `feat: store activities with duplicate detection`.
-- [ ] **Step 6: Walkthrough.** Explain why the data coming in (`ActivityIn`) is kept separate from the table (`Activity`), and how the duplicate rule works. Exercise: change the window to 10 s and see which test breaks. Wait for review.
+- [x] **Step 4: Run.** Expected: PASS.
+- [x] **Step 5: Commit** `feat: store activities with duplicate detection`.
+- [x] **Step 6: Walkthrough.** Explain why the data coming in (`ActivityIn`) is kept separate from the table (`Activity`), and how the duplicate rule works. Exercise: change the window to 10 s and see which test breaks. Wait for review.
 
 ---
 
@@ -207,10 +207,10 @@ def test_health_returns_ok():
   - `test_upload_garbage_returns_400` (Review Focus #5): uploading `b"not a fit file"` returns 400 with the exact message.
   - `test_upload_twice_saves_once`: two uploads of the fixture return `saved` 1, then 0.
 - [ ] **Step 3: Run.** Expected: FAIL.
-- [ ] **Step 4: Implement** `zones.py`, `fit_upload.py`, `routes/activities.py`. The route reads the user's `max_hr` from the DB.
-- [ ] **Step 5: Run.** Expected: PASS.
-- [ ] **Step 6: Commit** `feat: .FIT upload with HR zones` (the fixture contains Amit's GPS track; ask Amit before committing it, and if he'd rather not, add it to `.gitignore` and mark the real-file tests `skipif` missing).
-- [ ] **Step 7: Walkthrough.** Explain what a FIT file is, how bytes become fields, and what a hash is. Exercise: change the Z2 boundary to 65 % and predict which zone test fails. Wait for review.
+- [x] **Step 4: Implement** `zones.py`, `fit_upload.py`, `routes/activities.py`. The route reads the user's `max_hr` from the DB.
+- [x] **Step 5: Run.** Expected: PASS.
+- [x] **Step 6: Commit** `feat: .FIT upload with HR zones` (the fixture contains Amit's GPS track; ask Amit before committing it, and if he'd rather not, add it to `.gitignore` and mark the real-file tests `skipif` missing).
+- [x] **Step 7: Walkthrough.** Explain what a FIT file is, how bytes become fields, and what a hash is. Exercise: change the Z2 boundary to 65 % and predict which zone test fails. Wait for review.
 
 ---
 
@@ -237,11 +237,11 @@ def test_health_returns_ok():
   - `test_summary_without_zones_or_distance`: delete the zone keys and set `distance` to None. The result has `hr_zone_seconds is None` and `distance_m is None` (Review Focus #4).
   - `test_sync_endpoint_returns_502_on_garmin_error` (Review Focus #3): monkeypatch `garmin_sync.fetch_activities` to raise `GarminSyncError("429 Too Many Requests")`. The response is 502 and the detail is `"Garmin sync failed: 429 Too Many Requests. You can upload a .FIT file instead."`
   - `test_sync_endpoint_saves`: monkeypatch it to return `[summary_to_activity(fixture)]`. The response is `{"fetched": 1, "saved": 1}`.
-- [ ] **Step 4: Run.** Expected: FAIL.
-- [ ] **Step 5: Implement** the module, the script, and the route.
-- [ ] **Step 6: Run.** Expected: PASS.
-- [ ] **Step 7: Real-world check with Amit:** run `.venv\Scripts\python scripts/garmin_login.py --user-id 1` (Amit types his own credentials), then call `POST /users/1/sync-garmin` from `/docs`. Expected: `fetched` > 0. If Garmin's real field names differ from the fixture, update the fixture and the mapping together.
-- [ ] **Step 8: Commit** `feat: Garmin sync isolated behind GarminSyncError`.
+- [x] **Step 4: Run.** Expected: FAIL.
+- [x] **Step 5: Implement** the module, the script, and the route.
+- [x] **Step 6: Run.** Expected: PASS.
+- [x] **Step 7: Real-world check with Amit:** run `.venv\Scripts\python scripts/garmin_login.py --user-id 1` (Amit types his own credentials), then call `POST /users/1/sync-garmin` from `/docs`. Expected: `fetched` > 0. If Garmin's real field names differ from the fixture, update the fixture and the mapping together.
+- [x] **Step 8: Commit** `feat: Garmin sync isolated behind GarminSyncError`.
 - [ ] **Step 9: Walkthrough.** Explain why all Garmin code lives in one file, what a token is and why it's secret, and what monkeypatching does in tests. Exercise: sync 7 days instead of 28 and compare the counts. Wait for review.
 
 ---
@@ -269,9 +269,9 @@ def test_health_returns_ok():
   - A swim of 1500 m in 30 min gives `avg_pace_min_per_100m == 2.0`.
 - [ ] **Step 2: Run.** Expected: FAIL.
 - [ ] **Step 3: Implement** `compute_level` and the route. The route loads the user's activities in the window and passes them in.
-- [ ] **Step 4: Run.** Expected: PASS.
-- [ ] **Step 5: Commit** `feat: athlete level from last 4 weeks`.
-- [ ] **Step 6: Walkthrough.** Explain why level is plain math and not AI (this is the base the guardrails will use in Plan 2), and why the averages divide by 4. Exercise: change `LEVEL_WINDOW_WEEKS` to 6 and look at your own level in `/docs`. Wait for review.
+- [x] **Step 4: Run.** Expected: PASS.
+- [x] **Step 5: Commit** `feat: athlete level from last 4 weeks`.
+- [x] **Step 6: Walkthrough.** Explain why level is plain math and not AI (this is the base the guardrails will use in Plan 2), and why the averages divide by 4. Exercise: change `LEVEL_WINDOW_WEEKS` to 6 and look at your own level in `/docs`. Wait for review.
 
 ---
 
@@ -306,7 +306,7 @@ def test_health_returns_ok():
   - Endpoint: `GET /users/1/recap?week_start=2026-10-14` (a Wednesday) returns `week_start == "2026-10-12"`.
 - [ ] **Step 2: Run.** Expected: FAIL.
 - [ ] **Step 3: Implement** `build_recap` and the route.
-- [ ] **Step 4: Run the whole suite** with `pytest -v`. Expected: everything passes.
-- [ ] **Step 5: Real-data check with Amit:** after the Garmin sync from Task 6, open `/users/1/recap` for last week and `/users/1/level` in `/docs`, and compare by eye with Garmin Connect's weekly totals. Hours per sport should match within a few minutes.
-- [ ] **Step 6: Commit** `feat: weekly recap endpoint`.
-- [ ] **Step 7: Walkthrough + wrap-up.** Explain how the pieces connect (sync → store → level → recap), and show the whole flow in `/docs`. Exercise: add a `longest_session_min` field to `SportTotals`, test first. Preview Plan 2 (coach libraries and AI plans). Wait for review.
+- [x] **Step 4: Run the whole suite** with `pytest -v`. Expected: everything passes.
+- [x] **Step 5: Real-data check with Amit:** after the Garmin sync from Task 6, open `/users/1/recap` for last week and `/users/1/level` in `/docs`, and compare by eye with Garmin Connect's weekly totals. Hours per sport should match within a few minutes.
+- [x] **Step 6: Commit** `feat: weekly recap endpoint`.
+- [x] **Step 7: Walkthrough + wrap-up.** Explain how the pieces connect (sync → store → level → recap), and show the whole flow in `/docs`. Exercise: add a `longest_session_min` field to `SportTotals`, test first. Preview Plan 2 (coach libraries and AI plans). Wait for review.
