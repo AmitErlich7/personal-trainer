@@ -12,7 +12,6 @@ class UserCreate(SQLModel):
 
     name: str
     email: str
-    max_hr: int | None = None
 
 
 @router.post("/users", status_code=201, response_model=User)
