@@ -120,7 +120,7 @@ def test_health_returns_ok():
   - `db.get_session()`: a FastAPI dependency that yields a `Session`. `db.init_db()` creates the tables. The database URL comes from env var `DATABASE_URL`, default `sqlite:///./coach.db`.
   - `models.User`: `id: int | None (pk)`, `name: str`, `email: str (unique)`, `max_hr: int | None`, `is_admin: bool = False`.
   - `models.Activity`: `id: int | None (pk)`, `user_id: int (fk user.id, index)`, `source: str` ("garmin"|"fit"), `external_id: str`, `sport: str`, `name: str | None`, `start_time_local: datetime (index)`, `duration_s: float`, `distance_m: float | None`, `avg_hr: float | None`, `max_hr: float | None`, `avg_power: float | None`, `elevation_gain_m: float | None`, `hr_zone_seconds: list[float] | None` (JSON column, 5 entries Z1..Z5). Unique constraint `(user_id, source, external_id)`.
-  - `POST /users` (body `name`, `email`, optional `max_hr`) → 201 + user JSON. `GET /users/{user_id}` → user or 404 `"User not found"`.
+  - `POST /users` (body `name`, `email`; `max_hr` is not part of signup and starts empty) → 201 + user JSON. `GET /users/{user_id}` → user or 404 `"User not found"`.
   - `tests/conftest.py`: fixture `session` (in-memory SQLite, `StaticPool`) and fixture `client` (TestClient with `get_session` overridden to use it).
 
 - [x] **Step 1: Write the failing tests** in `test_users.py`:
