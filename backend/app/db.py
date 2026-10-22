@@ -5,8 +5,17 @@ from sqlmodel import Session, SQLModel, create_engine
 
 DATABASE_URL = os.environ.get("DATABASE_URL", "sqlite:///./coach.db")
 
-# SQLite refuses to share a connection between threads unless we say it's OK.
-engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})
+
+
+def connect_args_for(url: str) -> dict:
+    """Extra connection settings, only for databases that understand them."""
+    if url.startswith("sqlite"):
+        # SQLite refuses to share a connection between threads unless we say it's OK.
+        return {"check_same_thread": False}
+    return {}
+
+
+engine = create_engine(DATABASE_URL, connect_args=connect_args_for(DATABASE_URL))
 
 
 def init_db() -> None:
