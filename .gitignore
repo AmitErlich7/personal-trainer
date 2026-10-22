@@ -12,3 +12,8 @@ backend/.garmin_tokens/
 
 # Local database files
 *.db
+
+# Personal planning notes, kept on my machine only
+running-coach-design.md
+plan-*.md
+Needs.to.be.done.md
