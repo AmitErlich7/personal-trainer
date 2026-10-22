@@ -24,3 +24,10 @@ def test_duplicate_email_rejected(client):
     client.post("/users", json={"name": "Amit", "email": "a@x.com"})
     response = client.post("/users", json={"name": "Other", "email": "a@x.com"})
     assert response.status_code == 409
+
+
+def test_signup_still_works_after_duplicate_email_rejected(client):
+    client.post("/users", json={"name": "Amit", "email": "a@x.com"})
+    client.post("/users", json={"name": "Other", "email": "a@x.com"})
+    response = client.post("/users", json={"name": "Dana", "email": "d@x.com"})
+    assert response.status_code == 201

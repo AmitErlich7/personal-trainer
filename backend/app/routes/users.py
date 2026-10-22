@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
-from sqlmodel import Session, SQLModel, select
+from sqlalchemy.exc import IntegrityError
+from sqlmodel import Session, SQLModel
 
 from app.db import get_session
 from app.models import User
@@ -17,11 +18,15 @@ class UserCreate(SQLModel):
 @router.post("/users", status_code=201, response_model=User)
 def create_user(data: UserCreate, session: Session = Depends(get_session)) -> User:
     """Create a user. Two users can't share an email."""
-    if session.exec(select(User).where(User.email == data.email)).first():
-        raise HTTPException(status_code=409, detail="Email already in use")
     user = User.model_validate(data)
     session.add(user)
-    session.commit()
+    try:
+        session.commit()
+    except IntegrityError:
+        # The database's unique rule on email caught a duplicate, even if
+        # another request signed up with it a moment ago.
+        session.rollback()
+        raise HTTPException(status_code=409, detail="Email already in use")
     session.refresh(user)
     return user
 
