@@ -24,3 +24,33 @@ def test_duplicate_email_rejected(client):
     client.post("/users", json={"name": "Amit", "email": "a@x.com"})
     response = client.post("/users", json={"name": "Other", "email": "a@x.com"})
     assert response.status_code == 409
+
+
+def test_signup_still_works_after_duplicate_email_rejected(client):
+    client.post("/users", json={"name": "Amit", "email": "a@x.com"})
+    client.post("/users", json={"name": "Other", "email": "a@x.com"})
+    response = client.post("/users", json={"name": "Dana", "email": "d@x.com"})
+    assert response.status_code == 201
+
+
+def test_blank_name_rejected(client):
+    response = client.post("/users", json={"name": "   ", "email": "a@x.com"})
+    assert response.status_code == 422
+
+
+def test_invalid_email_rejected(client):
+    response = client.post("/users", json={"name": "Amit", "email": "not-an-email"})
+    assert response.status_code == 422
+
+
+def test_email_is_trimmed_and_lowercased(client):
+    response = client.post("/users", json={"name": " Amit ", "email": " A@X.com "})
+    assert response.status_code == 201
+    assert response.json()["email"] == "a@x.com"
+    assert response.json()["name"] == "Amit"
+
+
+def test_duplicate_email_ignores_case(client):
+    client.post("/users", json={"name": "Amit", "email": "a@x.com"})
+    response = client.post("/users", json={"name": "Other", "email": "A@X.COM"})
+    assert response.status_code == 409

@@ -1,27 +1,48 @@
+from typing import Annotated
+
 from fastapi import APIRouter, Depends, HTTPException
-from sqlmodel import Session, SQLModel, select
+from pydantic import StringConstraints
+from sqlalchemy.exc import IntegrityError
+from sqlmodel import Session, SQLModel
 
 from app.db import get_session
 from app.models import User
 
 router = APIRouter()
 
+# Strip spaces, and refuse an empty result.
+Name = Annotated[str, StringConstraints(strip_whitespace=True, min_length=1)]
+# Strip spaces, lowercase (so A@x.com and a@x.com are one person), and require
+# the shape "something@something.something".
+Email = Annotated[
+    str,
+    StringConstraints(
+        strip_whitespace=True,
+        to_lower=True,
+        pattern=r"^[^@\s]+@[^@\s]+\.[^@\s]+$",
+    ),
+]
+
 
 class UserCreate(SQLModel):
     """The data a client sends to create a user."""
 
-    name: str
-    email: str
+    name: Name
+    email: Email
 
 
 @router.post("/users", status_code=201, response_model=User)
 def create_user(data: UserCreate, session: Session = Depends(get_session)) -> User:
     """Create a user. Two users can't share an email."""
-    if session.exec(select(User).where(User.email == data.email)).first():
-        raise HTTPException(status_code=409, detail="Email already in use")
     user = User.model_validate(data)
     session.add(user)
-    session.commit()
+    try:
+        session.commit()
+    except IntegrityError:
+        # The database's unique rule on email caught a duplicate, even if
+        # another request signed up with it a moment ago.
+        session.rollback()
+        raise HTTPException(status_code=409, detail="Email already in use")
     session.refresh(user)
     return user
 
