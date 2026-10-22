@@ -7,6 +7,9 @@ from sqlmodel import Field, SQLModel
 class User(SQLModel, table=True):
     """One person using the app."""
 
+    # Not "user": that is a reserved word in Postgres.
+    __tablename__ = "users"
+
     id: int | None = Field(default=None, primary_key=True)
     name: str
     email: str = Field(unique=True)
@@ -21,7 +24,7 @@ class Activity(SQLModel, table=True):
     __table_args__ = (UniqueConstraint("user_id", "source", "external_id"),)
 
     id: int | None = Field(default=None, primary_key=True)
-    user_id: int = Field(foreign_key="user.id", index=True)
+    user_id: int = Field(foreign_key="users.id", index=True)
     source: str  # "garmin" or "fit"
     external_id: str
     sport: str  # "run", "bike", "swim" or "other"

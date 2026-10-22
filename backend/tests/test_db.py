@@ -4,7 +4,7 @@ import pytest
 from sqlalchemy.exc import IntegrityError
 
 from app.db import connect_args_for
-from app.models import Activity
+from app.models import Activity, User
 
 
 def test_sqlite_needs_the_thread_flag():
@@ -29,3 +29,10 @@ def test_activity_for_missing_user_is_rejected(session):
     )
     with pytest.raises(IntegrityError):
         session.commit()
+
+
+def test_user_table_is_called_users():
+    # "user" is a reserved word in Postgres, so we avoid it as a table name.
+    assert User.__tablename__ == "users"
+    foreign_key = next(iter(Activity.__table__.c.user_id.foreign_keys))
+    assert foreign_key.target_fullname == "users.id"
