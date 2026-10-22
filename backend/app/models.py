@@ -1,5 +1,4 @@
-from datetime import datetime
-
+from pydantic import NaiveDatetime
 from sqlalchemy import JSON, Column, UniqueConstraint
 from sqlmodel import Field, SQLModel
 
@@ -26,7 +25,8 @@ class Activity(SQLModel, table=True):
     external_id: str
     sport: str  # "run", "bike", "swim" or "other"
     name: str | None = None
-    start_time_local: datetime = Field(index=True)
+    # The clock time where the workout happened, with no timezone on purpose.
+    start_time_local: NaiveDatetime = Field(index=True)
     duration_s: float
     distance_m: float | None = None
     avg_hr: float | None = None

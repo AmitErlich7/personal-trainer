@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import datetime
 
 import pytest
 from sqlalchemy.exc import IntegrityError
@@ -23,7 +23,7 @@ def test_activity_for_missing_user_is_rejected(session):
             source="fit",
             external_id="abc",
             sport="run",
-            start_time_local=datetime(2026, 1, 1, 7, 0, tzinfo=timezone.utc),
+            start_time_local=datetime(2026, 1, 1, 7, 0),
             duration_s=1800,
         )
     )
