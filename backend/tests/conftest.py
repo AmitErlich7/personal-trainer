@@ -1,21 +1,17 @@
 import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy.pool import StaticPool
-from sqlmodel import Session, SQLModel, create_engine
+from sqlmodel import Session, SQLModel
 
 from app import models  # noqa: F401  (importing it registers the tables)
-from app.db import get_session
+from app.db import get_session, make_engine
 from app.main import app
 
 
 @pytest.fixture
 def session():
     """A fresh, empty in-memory database for one test."""
-    engine = create_engine(
-        "sqlite://",
-        connect_args={"check_same_thread": False},
-        poolclass=StaticPool,
-    )
+    engine = make_engine("sqlite://", poolclass=StaticPool)
     SQLModel.metadata.create_all(engine)
     with Session(engine) as session:
         yield session
