@@ -36,6 +36,40 @@ def test_activity_for_missing_user_is_rejected(session):
         session.commit()
 
 
+def make_activity(user_id, source="fit", external_id="abc"):
+    return Activity(
+        user_id=user_id,
+        source=source,
+        external_id=external_id,
+        sport="run",
+        start_time_local=datetime(2026, 1, 1, 7, 0),
+        duration_s=1800,
+    )
+
+
+def test_same_workout_cannot_be_saved_twice(session):
+    session.add(User(name="Amit", email="a@x.com"))
+    session.commit()
+    session.add(make_activity(user_id=1))
+    session.commit()
+
+    session.add(make_activity(user_id=1))  # same user, source and external_id
+    with pytest.raises(IntegrityError):
+        session.commit()
+
+
+def test_same_external_id_is_fine_for_another_source_or_user(session):
+    session.add(User(name="Amit", email="a@x.com"))
+    session.add(User(name="Dana", email="d@x.com"))
+    session.commit()
+    session.add(make_activity(user_id=1))
+    session.commit()
+
+    session.add(make_activity(user_id=1, source="garmin"))  # other source
+    session.add(make_activity(user_id=2))  # other user
+    session.commit()  # no error: only the full combination must be unique
+
+
 def test_user_table_is_called_users():
     # "user" is a reserved word in Postgres, so we avoid it as a table name.
     assert User.__tablename__ == "users"
