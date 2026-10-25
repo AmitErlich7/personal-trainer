@@ -1,10 +1,17 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlmodel import Session
 
+from app.current_user import get_current_user
 from app.db import get_session
 from app.models import User
 
 router = APIRouter()
+
+
+@router.get("/users/me", response_model=User)
+def read_me(user: User = Depends(get_current_user)) -> User:
+    """Return the signed-in user."""
+    return user
 
 
 @router.get("/users/{user_id}", response_model=User)

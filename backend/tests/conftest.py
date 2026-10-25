@@ -7,6 +7,7 @@ from app import models  # noqa: F401  (importing it registers the tables)
 from app.db import get_session, make_engine
 from app.main import app
 from app.models import User
+from tests.auth_helpers import make_token, use_test_signing
 
 
 @pytest.fixture
@@ -38,3 +39,14 @@ def make_user(session):
         return user
 
     return make
+
+
+@pytest.fixture
+def bearer(monkeypatch):
+    """A function that returns the Authorization header of a signed-in person."""
+    use_test_signing(monkeypatch)
+
+    def headers(sub="u-1", email="a@x.com", **claim_overrides) -> dict:
+        return {"Authorization": f"Bearer {make_token(sub, email, **claim_overrides)}"}
+
+    return headers
