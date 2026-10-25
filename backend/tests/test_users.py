@@ -6,23 +6,26 @@ def test_create_user_returns_201_and_id(client):
     assert body["max_hr"] is None
 
 
-def test_signup_ignores_max_hr(client):
+def test_signup_rejects_max_hr(client):
     response = client.post(
         "/users", json={"name": "Amit", "email": "a@x.com", "max_hr": 190}
     )
-    assert response.status_code == 201
-    assert response.json()["max_hr"] is None
+    assert response.status_code == 422
 
 
-def test_signup_ignores_is_admin(client):
+def test_signup_rejects_is_admin(client):
     response = client.post(
         "/users", json={"name": "Amit", "email": "a@x.com", "is_admin": True}
     )
+    assert response.status_code == 422
+
+
+def test_rejected_signup_creates_no_user(client):
+    client.post("/users", json={"name": "Amit", "email": "a@x.com", "is_admin": True})
+    # The same email works afterwards, so nothing was saved the first time.
+    response = client.post("/users", json={"name": "Amit", "email": "a@x.com"})
     assert response.status_code == 201
     assert response.json()["is_admin"] is False
-    # Also check what was saved, not only what the signup answered.
-    saved = client.get(f"/users/{response.json()['id']}")
-    assert saved.json()["is_admin"] is False
 
 
 def test_get_user_404(client):
