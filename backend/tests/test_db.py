@@ -1,8 +1,11 @@
 from datetime import datetime
 
 import pytest
+from alembic.autogenerate import compare_metadata
+from alembic.migration import MigrationContext
 from sqlalchemy import inspect
 from sqlalchemy.exc import IntegrityError
+from sqlmodel import SQLModel
 
 from app import db
 from app.db import connect_args_for
@@ -48,3 +51,16 @@ def test_init_db_runs_the_migrations(tmp_path, monkeypatch):
 
     tables = set(inspect(db.make_engine(url)).get_table_names())
     assert tables == {"users", "activity", "alembic_version"}
+
+
+def test_migrations_match_the_models(tmp_path, monkeypatch):
+    url = f"sqlite:///{tmp_path / 'fresh.db'}"
+    monkeypatch.setattr(db, "DATABASE_URL", url)  # alembic/env.py reads this
+
+    db.init_db()
+
+    with db.make_engine(url).connect() as connection:
+        context = MigrationContext.configure(connection)
+        differences = compare_metadata(context, SQLModel.metadata)
+    # No differences means: if a model changed, its migration was written too.
+    assert differences == []
