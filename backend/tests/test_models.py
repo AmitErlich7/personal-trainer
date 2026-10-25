@@ -5,10 +5,8 @@ from sqlmodel import select
 from app.models import Activity, User
 
 
-def test_activity_keeps_naive_local_start_time(session):
-    session.add(User(name="Amit", email="a@x.com"))
-    session.commit()
-    user = session.exec(select(User)).one()
+def test_activity_keeps_naive_local_start_time(session, make_user):
+    user = make_user()
     start = datetime(2026, 10, 12, 7, 1, 22)  # 07:01 on the watch's clock
 
     session.add(
