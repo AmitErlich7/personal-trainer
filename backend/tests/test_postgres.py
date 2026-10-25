@@ -159,3 +159,42 @@ def test_same_email_other_auth_id_is_409_on_postgres(pg_client, pg_session, bear
 
     assert response.status_code == 409
     assert len(pg_session.exec(select(User)).all()) == 1
+
+
+def test_row_level_security_is_on_for_every_table(migrated_url):
+    # Supabase exposes every public table through a web API that anyone with the
+    # anon key can call. Row Level Security keeps outsiders out. A new table
+    # added without it makes this test fail: add it to a migration.
+    engine = make_engine(migrated_url)
+    with engine.connect() as connection:
+        rows = connection.execute(
+            text(
+                "SELECT c.relname, c.relrowsecurity FROM pg_class c "
+                "JOIN pg_namespace n ON n.oid = c.relnamespace "
+                "WHERE n.nspname = 'public' AND c.relkind = 'r'"
+            )
+        ).all()
+    assert {name for name, _ in rows} == {"users", "activity", "alembic_version"}
+    assert [name for name, enabled in rows if not enabled] == []
+
+
+def test_an_outsider_role_sees_no_rows(pg_session):
+    add_user(pg_session)
+    pg_session.execute(
+        text(
+            "DO $$ BEGIN IF NOT EXISTS (SELECT FROM pg_roles WHERE rolname = 'outsider') "
+            "THEN CREATE ROLE outsider NOLOGIN; END IF; END $$"
+        )
+    )
+    # Like Supabase's anon role: it may look into the schema and read users.
+    pg_session.execute(text("GRANT USAGE ON SCHEMA public TO outsider"))
+    pg_session.execute(text("GRANT SELECT ON users TO outsider"))
+    pg_session.commit()
+
+    owner_count = pg_session.execute(text("SELECT count(*) FROM users")).scalar_one()
+    pg_session.execute(text("SET ROLE outsider"))
+    outsider_count = pg_session.execute(text("SELECT count(*) FROM users")).scalar_one()
+    pg_session.rollback()  # also undoes SET ROLE
+
+    assert owner_count == 1
+    assert outsider_count == 0
