@@ -10,6 +10,8 @@ class User(SQLModel, table=True):
     __tablename__ = "users"
 
     id: int | None = Field(default=None, primary_key=True)
+    # Supabase's id for this person (the `sub` in their token).
+    auth_id: str = Field(unique=True, index=True)
     name: str
     email: str = Field(unique=True)
     max_hr: int | None = None

@@ -47,9 +47,8 @@ def make_activity(user_id, source="fit", external_id="abc"):
     )
 
 
-def test_same_workout_cannot_be_saved_twice(session):
-    session.add(User(name="Amit", email="a@x.com"))
-    session.commit()
+def test_same_workout_cannot_be_saved_twice(session, make_user):
+    make_user()
     session.add(make_activity(user_id=1))
     session.commit()
 
@@ -58,16 +57,23 @@ def test_same_workout_cannot_be_saved_twice(session):
         session.commit()
 
 
-def test_same_external_id_is_fine_for_another_source_or_user(session):
-    session.add(User(name="Amit", email="a@x.com"))
-    session.add(User(name="Dana", email="d@x.com"))
-    session.commit()
+def test_same_external_id_is_fine_for_another_source_or_user(session, make_user):
+    make_user()
+    make_user(auth_id="u-2", email="d@x.com", name="Dana")
     session.add(make_activity(user_id=1))
     session.commit()
 
     session.add(make_activity(user_id=1, source="garmin"))  # other source
     session.add(make_activity(user_id=2))  # other user
     session.commit()  # no error: only the full combination must be unique
+
+
+def test_two_users_cannot_share_an_auth_id(session, make_user):
+    make_user(auth_id="u-1")
+
+    session.add(User(auth_id="u-1", name="Other", email="o@x.com"))
+    with pytest.raises(IntegrityError):
+        session.commit()
 
 
 def test_user_table_is_called_users():
