@@ -14,6 +14,17 @@ def test_signup_ignores_max_hr(client):
     assert response.json()["max_hr"] is None
 
 
+def test_signup_ignores_is_admin(client):
+    response = client.post(
+        "/users", json={"name": "Amit", "email": "a@x.com", "is_admin": True}
+    )
+    assert response.status_code == 201
+    assert response.json()["is_admin"] is False
+    # Also check what was saved, not only what the signup answered.
+    saved = client.get(f"/users/{response.json()['id']}")
+    assert saved.json()["is_admin"] is False
+
+
 def test_get_user_404(client):
     response = client.get("/users/999")
     assert response.status_code == 404
