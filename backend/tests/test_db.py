@@ -8,7 +8,7 @@ from sqlalchemy.exc import IntegrityError
 from sqlmodel import SQLModel
 
 from app import db
-from app.db import connect_args_for
+from app.db import connect_args_for, make_engine, normalize_url
 from app.models import Activity, User
 
 
@@ -19,6 +19,38 @@ def test_sqlite_needs_the_thread_flag():
 def test_other_databases_get_no_sqlite_flags():
     url = "postgresql+psycopg://user:pw@host:5432/postgres"
     assert connect_args_for(url) == {}
+
+
+def test_supabase_style_url_gets_the_psycopg_driver():
+    url = "postgresql://postgres.abc:pw@aws-0-eu.pooler.supabase.com:5432/postgres"
+    assert normalize_url(url).startswith("postgresql+psycopg://postgres.abc:pw@")
+
+
+def test_postgres_scheme_alias_is_accepted():
+    assert normalize_url("postgres://u:pw@host/db").startswith("postgresql+psycopg://")
+
+
+def test_remote_postgres_requires_ssl():
+    assert normalize_url("postgresql://u:pw@db.example.com/db").endswith("?sslmode=require")
+
+
+def test_explicit_sslmode_is_kept():
+    url = "postgresql://u:pw@db.example.com/db?sslmode=verify-full"
+    assert normalize_url(url).endswith("?sslmode=verify-full")
+
+
+def test_local_postgres_does_not_force_ssl():
+    assert "sslmode" not in normalize_url("postgresql://u:pw@localhost:5433/db")
+
+
+def test_sqlite_url_is_left_alone():
+    assert normalize_url("sqlite:///./coach.db") == "sqlite:///./coach.db"
+
+
+def test_postgres_engine_checks_connections_before_using_them():
+    engine = make_engine("postgresql://u:pw@db.example.com/db")
+    assert engine.url.drivername == "postgresql+psycopg"
+    assert engine.pool._pre_ping is True
 
 
 def test_activity_for_missing_user_is_rejected(session):
