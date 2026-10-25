@@ -1,0 +1,19 @@
+# A disposable Postgres for the Postgres tests. Nothing here holds real data.
+#   Start:  docker compose -f docker-compose.test.yml up -d --wait
+#   Stop:   docker compose -f docker-compose.test.yml down
+# Then run the Postgres tests with:
+#   $env:TEST_DATABASE_URL="postgresql://postgres:test@localhost:5433/coach_test"
+services:
+  postgres:
+    image: postgres:17
+    environment:
+      POSTGRES_PASSWORD: test
+      POSTGRES_DB: coach_test
+    ports:
+      - "5433:5432"  # 5433 on your machine, so it never clashes with a real Postgres
+    tmpfs:
+      - /var/lib/postgresql/data  # kept in memory: fast, and gone when it stops
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d coach_test"]
+      interval: 2s
+      retries: 20
