@@ -1,7 +1,7 @@
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException
-from pydantic import StringConstraints
+from pydantic import ConfigDict, StringConstraints
 from sqlalchemy.exc import IntegrityError
 from sqlmodel import Session, SQLModel
 
@@ -26,6 +26,9 @@ Email = Annotated[
 
 class UserCreate(SQLModel):
     """The data a client sends to create a user."""
+
+    # Fields we do not know (max_hr, is_admin, typos) get a 422 instead of being dropped.
+    model_config = ConfigDict(extra="forbid")
 
     name: Name
     email: Email
