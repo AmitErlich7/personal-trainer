@@ -1,3 +1,6 @@
+import pytest
+
+
 def test_create_user_returns_201_and_id(client):
     response = client.post("/users", json={"name": "Amit", "email": "a@x.com"})
     assert response.status_code == 201
@@ -68,3 +71,50 @@ def test_duplicate_email_ignores_case(client):
     client.post("/users", json={"name": "Amit", "email": "a@x.com"})
     response = client.post("/users", json={"name": "Other", "email": "A@X.COM"})
     assert response.status_code == 409
+
+
+def make_user(client):
+    return client.post("/users", json={"name": "Amit", "email": "a@x.com"}).json()["id"]
+
+
+def test_set_max_hr(client):
+    user_id = make_user(client)
+    response = client.patch(f"/users/{user_id}", json={"max_hr": 190})
+    assert response.status_code == 200
+    assert response.json()["max_hr"] == 190
+    # Also check what was saved, not only what the update answered.
+    assert client.get(f"/users/{user_id}").json()["max_hr"] == 190
+
+
+def test_max_hr_can_be_cleared_with_null(client):
+    user_id = make_user(client)
+    client.patch(f"/users/{user_id}", json={"max_hr": 190})
+    response = client.patch(f"/users/{user_id}", json={"max_hr": None})
+    assert response.status_code == 200
+    assert response.json()["max_hr"] is None
+
+
+@pytest.mark.parametrize("bad_value", [99, 251, "fast"])
+def test_max_hr_out_of_range_rejected(client, bad_value):
+    user_id = make_user(client)
+    response = client.patch(f"/users/{user_id}", json={"max_hr": bad_value})
+    assert response.status_code == 422
+    assert client.get(f"/users/{user_id}").json()["max_hr"] is None
+
+
+def test_update_rejects_other_fields(client):
+    user_id = make_user(client)
+    response = client.patch(f"/users/{user_id}", json={"max_hr": 190, "is_admin": True})
+    assert response.status_code == 422
+    assert client.get(f"/users/{user_id}").json()["max_hr"] is None
+
+
+def test_update_without_max_hr_rejected(client):
+    user_id = make_user(client)
+    assert client.patch(f"/users/{user_id}", json={}).status_code == 422
+
+
+def test_update_unknown_user_404(client):
+    response = client.patch("/users/999", json={"max_hr": 190})
+    assert response.status_code == 404
+    assert response.json()["detail"] == "User not found"

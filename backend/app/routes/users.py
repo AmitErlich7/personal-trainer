@@ -1,7 +1,7 @@
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException
-from pydantic import ConfigDict, StringConstraints
+from pydantic import ConfigDict, Field, StringConstraints
 from sqlalchemy.exc import IntegrityError
 from sqlmodel import Session, SQLModel
 
@@ -34,6 +34,15 @@ class UserCreate(SQLModel):
     email: Email
 
 
+class UserUpdate(SQLModel):
+    """The data a client sends to change a user. For now, only max_hr."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    # Beats per minute. null clears it. The range catches typos like 19 or 1900.
+    max_hr: Annotated[int, Field(ge=100, le=250)] | None
+
+
 @router.post("/users", status_code=201, response_model=User)
 def create_user(data: UserCreate, session: Session = Depends(get_session)) -> User:
     """Create a user. Two users can't share an email."""
@@ -56,4 +65,19 @@ def get_user(user_id: int, session: Session = Depends(get_session)) -> User:
     user = session.get(User, user_id)
     if user is None:
         raise HTTPException(status_code=404, detail="User not found")
+    return user
+
+
+@router.patch("/users/{user_id}", response_model=User)
+def update_user(
+    user_id: int, data: UserUpdate, session: Session = Depends(get_session)
+) -> User:
+    """Change a user's max heart rate, or 404 if there is no such user."""
+    user = session.get(User, user_id)
+    if user is None:
+        raise HTTPException(status_code=404, detail="User not found")
+    user.max_hr = data.max_hr
+    session.add(user)
+    session.commit()
+    session.refresh(user)
     return user
