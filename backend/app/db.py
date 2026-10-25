@@ -1,9 +1,13 @@
 import os
 from collections.abc import Iterator
+from pathlib import Path
 
+from alembic import command
+from alembic.config import Config
 from sqlalchemy import Engine, event
-from sqlmodel import Session, SQLModel, create_engine
+from sqlmodel import Session, create_engine
 
+ALEMBIC_INI = Path(__file__).resolve().parent.parent / "alembic.ini"
 DATABASE_URL = os.environ.get("DATABASE_URL", "sqlite:///./coach.db")
 
 
@@ -34,8 +38,8 @@ engine = make_engine(DATABASE_URL)
 
 
 def init_db() -> None:
-    """Create all tables that don't exist yet."""
-    SQLModel.metadata.create_all(engine)
+    """Bring the database up to date by running every migration not yet applied."""
+    command.upgrade(Config(str(ALEMBIC_INI)), "head")
 
 
 def get_session() -> Iterator[Session]:

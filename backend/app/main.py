@@ -8,7 +8,7 @@ from app.routes import users
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    """Runs once when the server starts: make sure the tables exist."""
+    """Runs once when the server starts: bring the database up to date."""
     init_db()
     yield
 
