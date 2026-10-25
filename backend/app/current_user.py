@@ -56,3 +56,10 @@ def get_current_user(
         )
     session.refresh(user)
     return user
+
+
+def require_admin(user: User = Depends(get_current_user)) -> User:
+    """Return the signed-in user, but only if they are an admin."""
+    if not user.is_admin:
+        raise HTTPException(status_code=403, detail="Admins only")
+    return user

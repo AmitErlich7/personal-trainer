@@ -1,7 +1,7 @@
-def test_get_user_404(client):
-    response = client.get("/users/999")
-    assert response.status_code == 404
-    assert response.json()["detail"] == "User not found"
+def test_get_user_by_id_no_longer_exists(client, make_user):
+    user = make_user()
+    # The id exists, but there is no longer a route that looks users up by id.
+    assert client.get(f"/users/{user.id}").status_code == 404
 
 
 def test_signup_route_no_longer_exists(client):
