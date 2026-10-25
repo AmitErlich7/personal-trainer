@@ -1,8 +1,10 @@
 from datetime import datetime
 
 import pytest
+from sqlalchemy import inspect
 from sqlalchemy.exc import IntegrityError
 
+from app import db
 from app.db import connect_args_for
 from app.models import Activity, User
 
@@ -36,3 +38,13 @@ def test_user_table_is_called_users():
     assert User.__tablename__ == "users"
     foreign_key = next(iter(Activity.__table__.c.user_id.foreign_keys))
     assert foreign_key.target_fullname == "users.id"
+
+
+def test_init_db_runs_the_migrations(tmp_path, monkeypatch):
+    url = f"sqlite:///{tmp_path / 'fresh.db'}"
+    monkeypatch.setattr(db, "DATABASE_URL", url)  # alembic/env.py reads this
+
+    db.init_db()
+
+    tables = set(inspect(db.make_engine(url)).get_table_names())
+    assert tables == {"users", "activity", "alembic_version"}

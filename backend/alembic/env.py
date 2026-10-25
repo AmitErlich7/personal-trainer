@@ -10,7 +10,8 @@ from app.db import DATABASE_URL, make_engine
 config = context.config
 
 if config.config_file_name is not None:
-    fileConfig(config.config_file_name)
+    # False: do not silence the loggers of the app (uvicorn) that is calling us.
+    fileConfig(config.config_file_name, disable_existing_loggers=False)
 
 # The tables our models describe. Alembic compares this to the real database.
 target_metadata = SQLModel.metadata
